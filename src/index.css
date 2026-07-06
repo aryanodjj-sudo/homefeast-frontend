@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/* Tailwind v4 defaults to prefers-color-scheme for dark: variants.
+   This switches it to class-based dark mode, controlled by ThemeContext
+   toggling the "dark" class on <html> - so the toggle in the navbar works. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* --- HomeFeast design tokens ---
+   ink/rice/turmeric/curry are the brand's own palette (see Home page redesign).
+   orange-* (Tailwind's built-in scale) stays the site-wide action color used
+   everywhere else - cart, checkout, badges - so it is intentionally NOT
+   redefined here. */
+@theme {
+  --color-ink: #1c1712;
+  --color-ink-light: #2a231b;
+  --color-rice: #fbf7f0;
+  --color-turmeric: #e3a72e;
+  --color-curry: #3f6b45;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+}
+
+/* One orchestrated entrance for the hero only - not used elsewhere on the
+   page. Each element gets a small stagger via inline animation-delay. */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-rise {
+    animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Toast notifications (ToastContainer) - slides in from the right. */
+@media (prefers-reduced-motion: no-preference) {
+  .toast-in {
+    animation: toast-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
