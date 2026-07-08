@@ -84,3 +84,18 @@ export const validateProfileForm = ({ name, phone }) => {
 
   return errors;
 };
+
+export const validateContactForm = ({ name, email, message }) => {
+  const errors = {};
+
+  if (!name?.trim()) errors.name = VALIDATION_MESSAGES.REQUIRED;
+  else if (name.trim().length < 2) errors.name = VALIDATION_MESSAGES.INVALID_NAME;
+
+  if (!email?.trim()) errors.email = VALIDATION_MESSAGES.REQUIRED;
+  else if (!isValidEmail(email)) errors.email = VALIDATION_MESSAGES.INVALID_EMAIL;
+
+  if (!message?.trim()) errors.message = VALIDATION_MESSAGES.REQUIRED;
+  else if (message.trim().length < 10) errors.message = "Please write at least 10 characters";
+
+  return errors;
+};

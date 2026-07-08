@@ -1,5 +1,5 @@
 import { APP_CONFIG } from "./appConfig";
-import { ORDER_STATUS, REVIEW_STATUS, STORAGE_KEYS, USER_ROLES, VALIDATION_MESSAGES } from "./constants";
+import { ORDER_STATUS, REVIEW_STATUS, MESSAGE_STATUS, STORAGE_KEYS, USER_ROLES, VALIDATION_MESSAGES } from "./constants";
 import { getStorageItem, setStorageItem } from "./storage";
 import {
   addStoredUser,
@@ -12,6 +12,8 @@ import {
   saveStoredCategories,
   getStoredReviews,
   saveStoredReviews,
+  getStoredMessages,
+  saveStoredMessages,
 } from "./storageManager";
 import { canCancelOrder, generateOrderId } from "./orderHelpers";
 
@@ -496,6 +498,70 @@ export const reviewsAPI = {
 
     const reviews = getStoredReviews();
     saveStoredReviews(reviews.filter((r) => r.id !== id));
+    return { success: true };
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Contact API - customer queries + admin moderation.
+// ---------------------------------------------------------------------------
+export const contactAPI = {
+  sendMessage: async ({ name, email, phone, subject, message }) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request("/contact", {
+        method: "POST",
+        body: JSON.stringify({ name, email, phone, subject, message }),
+      });
+    }
+
+    await mockDelay();
+
+    const messages = getStoredMessages();
+    const newMessage = {
+      id: crypto.randomUUID(),
+      name,
+      email,
+      phone: phone?.trim() || "",
+      subject: subject?.trim() || "General Query",
+      message: message.trim(),
+      status: MESSAGE_STATUS.NEW,
+      createdAt: new Date().toISOString(),
+    };
+
+    saveStoredMessages([newMessage, ...messages]);
+    return newMessage;
+  },
+
+  // Admin-facing: all messages, newest first.
+  getMessages: async () => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request("/admin/messages");
+    }
+    await mockDelay();
+    return getStoredMessages().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  },
+
+  resolveMessage: async (id, status) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request(`/admin/messages/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+    }
+    await mockDelay();
+    const messages = getStoredMessages();
+    const updated = messages.map((m) => (m.id === id ? { ...m, status } : m));
+    saveStoredMessages(updated);
+    return updated.find((m) => m.id === id);
+  },
+
+  deleteMessage: async (id) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request(`/admin/messages/${id}`, { method: "DELETE" });
+    }
+    await mockDelay();
+    const messages = getStoredMessages().filter((m) => m.id !== id);
+    saveStoredMessages(messages);
     return { success: true };
   },
 };

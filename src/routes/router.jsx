@@ -28,6 +28,7 @@ import ManageCategories from "../pages/admin/ManageCategories";
 import ManageOrders from "../pages/admin/ManageOrders";
 import ManageCustomers from "../pages/admin/ManageCustomers";
 import ManageReviews from "../pages/admin/ManageReviews";
+import ManageMessages from "../pages/admin/ManageMessages";
 
 const router = createBrowserRouter([
   {
@@ -78,6 +79,7 @@ const router = createBrowserRouter([
           { path: "orders", element: <ManageOrders /> },
           { path: "customers", element: <ManageCustomers /> },
           { path: "reviews", element: <ManageReviews /> },
+          { path: "messages", element: <ManageMessages /> },
         ],
       },
     ],

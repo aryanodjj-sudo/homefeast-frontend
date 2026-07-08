@@ -118,3 +118,11 @@ export const getStoredReviews = () => {
 };
 
 export const saveStoredReviews = (reviews) => setStorageItem(STORAGE_KEYS.REVIEWS, reviews);
+
+// ---------------------------------------------------------------------------
+// Contact messages "table" - customer queries submitted from the Contact
+// page, moderated from the Manage Messages admin screen.
+// ---------------------------------------------------------------------------
+export const getStoredMessages = () => getStorageItem(STORAGE_KEYS.MESSAGES, []);
+
+export const saveStoredMessages = (messages) => setStorageItem(STORAGE_KEYS.MESSAGES, messages);

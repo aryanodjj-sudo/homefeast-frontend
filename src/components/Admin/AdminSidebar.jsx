@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: ROUTES.ADMIN_ORDERS, label: "Orders", icon: "📦" },
   { to: ROUTES.ADMIN_CUSTOMERS, label: "Customers", icon: "👥" },
   { to: ROUTES.ADMIN_REVIEWS, label: "Reviews", icon: "⭐" },
+  { to: ROUTES.ADMIN_MESSAGES, label: "Messages", icon: "✉️" },
 ];
 
 const AdminSidebar = () => (

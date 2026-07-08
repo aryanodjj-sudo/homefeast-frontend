@@ -10,7 +10,7 @@ import PriceBreakdown from "../components/Checkout/PriceBreakdown";
 import { formatPrice } from "../utils/formatPrice";
 import { formatDate } from "../utils/formatDate";
 import { canCancelOrder } from "../utils/orderHelpers";
-import { PAYMENT_METHOD_LABELS, ROUTES } from "../utils/constants";
+import { PAYMENT_METHOD_LABELS, ROUTES, ORDER_STATUS } from "../utils/constants";
 
 // Single order's full detail view: status tracker, line items, delivery
 // address, payment method, price breakdown, and (while still cancellable)
@@ -103,6 +103,14 @@ const OrderDetails = () => {
                   <p className="font-semibold text-orange-500">
                     {formatPrice(item.price * item.quantity)}
                   </p>
+                  {order.status === ORDER_STATUS.DELIVERED && (
+                    <Link
+                      to={ROUTES.mealDetails(item.mealId || item.id)}
+                      className="ml-2 shrink-0 rounded-lg border border-orange-500 px-3 py-1.5 text-xs font-semibold text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/10"
+                    >
+                      ⭐ Rate this meal
+                    </Link>
+                  )}
                 </div>
               ))}
             </div>

@@ -12,6 +12,7 @@ export const STORAGE_KEYS = {
   MEALS: "homefeast-meals",
   CATEGORIES: "homefeast-categories",
   REVIEWS: "homefeast-reviews",
+  MESSAGES: "homefeast-messages",
 };
 
 export const USER_ROLES = {
@@ -52,6 +53,7 @@ export const ROUTES = {
   ADMIN_ORDERS: "/admin/orders",
   ADMIN_CUSTOMERS: "/admin/customers",
   ADMIN_REVIEWS: "/admin/reviews",
+  ADMIN_MESSAGES: "/admin/messages",
 };
 
 export const VALIDATION_MESSAGES = {
@@ -127,10 +129,17 @@ export const COUPONS = {
 };
 
 // ---------------------------------------------------------------------------
-// Reviews (Phase 7 groundwork - admin moderation ships now, the
-// customer-facing "Add a Review" form arrives with the rest of Phase 7)
+// Reviews
 // ---------------------------------------------------------------------------
 export const REVIEW_STATUS = {
   PUBLISHED: "Published",
   HIDDEN: "Hidden",
+};
+
+// ---------------------------------------------------------------------------
+// Contact messages
+// ---------------------------------------------------------------------------
+export const MESSAGE_STATUS = {
+  NEW: "New",
+  RESOLVED: "Resolved",
 };
