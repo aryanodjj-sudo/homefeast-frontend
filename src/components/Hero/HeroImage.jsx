@@ -1,10 +1,11 @@
-import heroPhoto from "../../assets/hero.png";
-
 // Signature element: a stack of offset tiers behind the photo, echoing a
 // tiffin carrier (dabba) - the everyday object of home-cooked food being
 // carried and delivered, which is exactly HomeFeast's story. The same
 // three-tier motif reappears in miniature as the eyebrow mark on other
 // sections of the home page.
+const HERO_PHOTO_URL =
+  "https://images.unsplash.com/photo-1742281257687-092746ad6021?auto=format&fit=crop&w=1000&q=80";
+
 const HeroImage = () => {
   return (
     <div className="relative mx-auto max-w-md md:max-w-none">
@@ -24,8 +25,8 @@ const HeroImage = () => {
 
       <div className="relative overflow-hidden rounded-[2.5rem] shadow-2xl">
         <img
-          src={heroPhoto}
-          alt="A homemade meal freshly plated in a home kitchen"
+          src={HERO_PHOTO_URL}
+          alt="A traditional home-cooked Indian thali, freshly plated"
           className="h-[420px] w-full object-cover"
         />
       </div>

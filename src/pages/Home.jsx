@@ -1,13 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import Hero from "../components/Hero/Hero";
+import CategoryStrip from "../components/Categories/CategoryStrip";
 import MealsSection from "../components/Meals/MealsSection";
 import ChefSection from "../components/Chef/ChefSection";
 import SectionTitle from "../components/Common/SectionTitle";
 import Button from "../components/Common/Button";
 import { ROUTES } from "../utils/constants";
 
-// A real sequence - a chef cooks, packs, then it's delivered - so numbered
-// steps here actually carry order, unlike a generic "3 features" grid.
 const STEPS = [
   {
     number: "01",
@@ -35,6 +34,8 @@ const Home = () => {
   return (
     <div>
       <Hero />
+
+      <CategoryStrip />
 
       <section className="container mx-auto px-4 py-20">
         <SectionTitle

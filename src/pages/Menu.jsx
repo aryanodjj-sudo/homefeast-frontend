@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import useMeals from "../hooks/useMeals";
 import MealList from "../components/Meals/MealList";
 import MealFilter from "../components/Meals/MealFilter";
@@ -13,8 +14,11 @@ import { sortMeals } from "../utils/sortMeals";
 // search narrows by text -> filter narrows by category -> sort reorders the result.
 const Menu = () => {
   const { meals, loading } = useMeals();
+  const location = useLocation();
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All");
+  // If the homepage's category strip sent a category along (e.g. "Rice"),
+  // land on the menu pre-filtered to it instead of always starting at "All".
+  const [category, setCategory] = useState(location.state?.category || "All");
   const [sort, setSort] = useState("default");
 
   const categories = useMemo(
