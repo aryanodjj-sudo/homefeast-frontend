@@ -1,8 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import App from "./App";
 import { seedAdminUser } from "./utils/storageManager";
+import { APP_CONFIG } from "./utils/appConfig";
 
 import "./index.css";
 
@@ -13,6 +15,8 @@ seedAdminUser();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <GoogleOAuthProvider clientId={APP_CONFIG.GOOGLE_CLIENT_ID}>
+      <App />
+    </GoogleOAuthProvider>
   </React.StrictMode>
 );

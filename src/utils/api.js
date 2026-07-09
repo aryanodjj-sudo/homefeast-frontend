@@ -65,15 +65,58 @@ const toSafeUser = (user) => ({
 // Auth API - flip APP_CONFIG.USE_MOCK_API to false once backend endpoints exist.
 // ---------------------------------------------------------------------------
 export const authAPI = {
-  register: async ({ name, email, phone, password }) => {
+  // Sends a 6-digit OTP to the given email. purpose is "register" or "login" -
+  // the backend uses it to reject a register-OTP being replayed for login etc.
+  sendOtp: async ({ email, purpose }) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request("/auth/send-otp", {
+        method: "POST",
+        body: JSON.stringify({ email, purpose }),
+      });
+    }
+    await mockDelay();
+    console.info(`[Mock OTP] Use 123456 to verify ${email}`);
+    return { success: true, mock: true };
+  },
+
+  verifyOtp: async ({ email, otp, purpose }) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request("/auth/verify-otp", {
+        method: "POST",
+        body: JSON.stringify({ email, otp, purpose }),
+      });
+    }
+    await mockDelay();
+    if (otp !== "123456") {
+      throw new Error("Invalid OTP. In mock mode use 123456.");
+    }
+    return { verifyToken: `mock-verified-${email}-${purpose}` };
+  },
+
+  googleAuth: async (credential) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request("/auth/google", {
+        method: "POST",
+        body: JSON.stringify({ credential }),
+      });
+    }
+    await mockDelay();
+    throw new Error("Google sign-in needs the real backend. Set VITE_USE_MOCK_API=false.");
+  },
+
+  register: async ({ name, email, phone, password, verifyToken }) => {
     if (!APP_CONFIG.USE_MOCK_API) {
       return request("/auth/register", {
         method: "POST",
-        body: JSON.stringify({ name, email, phone, password }),
+        body: JSON.stringify({ name, email, phone, password, verifyToken }),
       });
     }
 
     await mockDelay();
+
+    if (!verifyToken) {
+      throw new Error("Please verify your email with the OTP first");
+    }
 
     if (findUserByEmail(email)) {
       throw new Error(VALIDATION_MESSAGES.EMAIL_TAKEN);
@@ -84,7 +127,7 @@ export const authAPI = {
       name: name.trim(),
       email: email.trim().toLowerCase(),
       phone: phone?.trim() || "",
-      password, // Hashed with bcrypt server-side once the real backend exists (Step 11)
+      password,
       role: USER_ROLES.CUSTOMER,
       createdAt: new Date().toISOString(),
     };
@@ -94,15 +137,19 @@ export const authAPI = {
     return { user: toSafeUser(newUser), token: generateMockToken(newUser.id) };
   },
 
-  login: async ({ email, password }) => {
+  login: async ({ email, password, verifyToken }) => {
     if (!APP_CONFIG.USE_MOCK_API) {
       return request("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, verifyToken }),
       });
     }
 
     await mockDelay();
+
+    if (!verifyToken) {
+      throw new Error("Please verify your email with the OTP first");
+    }
 
     const existingUser = findUserByEmail(email);
 
@@ -239,9 +286,6 @@ export const ordersAPI = {
 
   // --- Admin-only ---------------------------------------------------------
 
-  // Unlike getOrders (customer-scoped), this returns every order across
-  // every user - a real backend would gate this route with an admin-only
-  // middleware instead of filtering client-side.
   getAllOrders: async () => {
     if (!APP_CONFIG.USE_MOCK_API) {
       return request("/admin/orders");
@@ -402,7 +446,6 @@ export const reviewsAPI = {
     return getStoredReviews().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   },
 
-  // Customer-facing: only published reviews for one meal, newest first.
   getReviewsForMeal: async (mealId) => {
     if (!APP_CONFIG.USE_MOCK_API) {
       return request(`/meals/${mealId}/reviews`);
@@ -438,9 +481,6 @@ export const reviewsAPI = {
     return newReview;
   },
 
-  // Only the review's own author may edit/delete it - enforced here since
-  // there's no server session yet; a real backend would check req.user.id
-  // against the review's userId in middleware instead of in the client.
   updateOwnReview: async (id, userId, { rating, comment }) => {
     if (!APP_CONFIG.USE_MOCK_API) {
       return request(`/reviews/${id}`, {
@@ -532,7 +572,6 @@ export const contactAPI = {
     return newMessage;
   },
 
-  // Admin-facing: all messages, newest first.
   getMessages: async () => {
     if (!APP_CONFIG.USE_MOCK_API) {
       return request("/admin/messages");
@@ -591,7 +630,6 @@ export const adminAPI = {
       return acc;
     }, {});
 
-    // Revenue for the last 7 days, oldest first - feeds the dashboard's bar chart.
     const today = new Date();
     const last7Days = Array.from({ length: 7 }).map((_, i) => {
       const day = new Date(today);
@@ -619,9 +657,6 @@ export const adminAPI = {
     };
   },
 
-  // Customer list with lightweight per-user order stats, computed the same
-  // way a real backend would via a join/aggregation - kept here rather than
-  // in a separate usersAPI since it's admin-only, unlike auth's user object.
   getCustomers: async () => {
     if (!APP_CONFIG.USE_MOCK_API) {
       return request("/admin/customers");
@@ -647,6 +682,33 @@ export const adminAPI = {
         totalSpent,
       };
     });
+  },
+
+  // Powers the "View Orders" drawer on Manage Customers - one customer's
+  // full order history (every item, status, total), newest first.
+  getCustomerOrders: async (customerId) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request(`/admin/customers/${customerId}/orders`);
+    }
+    await mockDelay();
+
+    const customerRecord = getStoredUsers().find((u) => u.id === customerId);
+    if (!customerRecord) throw new Error("Customer not found");
+
+    const orders = getAllStoredOrders()
+      .filter((o) => o.userId === customerId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return {
+      customer: {
+        id: customerRecord.id,
+        name: customerRecord.name,
+        email: customerRecord.email,
+        phone: customerRecord.phone,
+        createdAt: customerRecord.createdAt,
+      },
+      orders,
+    };
   },
 };
 

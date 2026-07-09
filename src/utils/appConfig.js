@@ -9,6 +9,7 @@ export const APP_CONFIG = {
   USE_MOCK_API: import.meta.env.VITE_USE_MOCK_API !== "false",
   MOCK_NETWORK_DELAY_MS: 600,
   CURRENCY_SYMBOL: "₹",
+  GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
 };
 
 export default APP_CONFIG;
