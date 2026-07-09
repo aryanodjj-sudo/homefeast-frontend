@@ -17,13 +17,13 @@ const GoogleAuthButton = ({ onSuccess, onError, text = "continue_with" }) => {
   };
 
   return (
-    <div className={busy ? "pointer-events-none opacity-60" : ""}>
+    <div className={`flex justify-center ${busy ? "pointer-events-none opacity-60" : ""}`}>
       <GoogleLogin
         onSuccess={handleSuccess}
         onError={() => onError?.("Google sign-in failed. Please try again.")}
         text={text}
         shape="pill"
-        width="100%"
+        width="320"
       />
     </div>
   );

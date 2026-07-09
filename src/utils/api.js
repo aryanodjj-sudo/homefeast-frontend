@@ -75,8 +75,17 @@ export const authAPI = {
       });
     }
     await mockDelay();
+
+    // Admin accounts skip OTP entirely on login, same as the real backend.
+    if (purpose === "login") {
+      const existingUser = findUserByEmail(email);
+      if (existingUser?.role === USER_ROLES.ADMIN) {
+        return { success: true, otpRequired: false };
+      }
+    }
+
     console.info(`[Mock OTP] Use 123456 to verify ${email}`);
-    return { success: true, mock: true };
+    return { success: true, otpRequired: true, mock: true };
   },
 
   verifyOtp: async ({ email, otp, purpose }) => {

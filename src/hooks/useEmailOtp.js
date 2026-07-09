@@ -4,8 +4,10 @@ import { authAPI } from "../utils/api";
 const RESEND_SECONDS = 30;
 
 // Shared "send OTP -> verify OTP -> get a verifyToken" flow used by both
-// Login and Register. `purpose` is "register" or "login" - the backend
-// checks it so an OTP sent for one can't be replayed for the other.
+// Login and Register. `purpose` is "register" or "login". For login, the
+// backend may respond with otpRequired: false (admin accounts) - in that
+// case this hook marks the email as verified immediately, skipping the
+// OTP-entry step entirely.
 const useEmailOtp = (purpose) => {
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
@@ -14,6 +16,7 @@ const useEmailOtp = (purpose) => {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
   const [resendIn, setResendIn] = useState(0);
+  const [skipped, setSkipped] = useState(false); // true when OTP wasn't required at all (e.g. admin login)
   const timerRef = useRef(null);
 
   const startTimer = () => {
@@ -34,7 +37,17 @@ const useEmailOtp = (purpose) => {
     setError("");
     setSending(true);
     try {
-      await authAPI.sendOtp({ email, purpose });
+      const result = await authAPI.sendOtp({ email, purpose });
+
+      if (result?.otpRequired === false) {
+        // Admin account - no OTP needed, treat email as already verified.
+        setOtpSent(false);
+        setOtpVerified(true);
+        setVerifyToken(null);
+        setSkipped(true);
+        return;
+      }
+
       setOtpSent(true);
       startTimer();
     } catch (err) {
@@ -66,6 +79,7 @@ const useEmailOtp = (purpose) => {
     setVerifyToken(null);
     setError("");
     setResendIn(0);
+    setSkipped(false);
     clearInterval(timerRef.current);
   };
 
@@ -77,6 +91,7 @@ const useEmailOtp = (purpose) => {
     verifying,
     error,
     resendIn,
+    skipped,
     sendOtp,
     verifyOtp,
     reset,
