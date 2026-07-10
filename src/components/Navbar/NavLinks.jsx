@@ -28,6 +28,18 @@ const NavLinks = ({ mobile = false }) => {
         Chefs
       </Link>
       <Link
+        to="/about"
+        className="text-gray-700 transition hover:text-orange-500 dark:text-gray-200"
+      >
+        About
+      </Link>
+      <Link
+        to="/contact"
+        className="text-gray-700 transition hover:text-orange-500 dark:text-gray-200"
+      >
+        Contact
+      </Link>
+      <Link
         to="/cart"
         className="text-gray-700 transition hover:text-orange-500 dark:text-gray-200"
       >
