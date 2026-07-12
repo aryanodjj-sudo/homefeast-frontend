@@ -1,36 +1,39 @@
 import { useEffect, useRef, useState } from "react";
-import mealsImage from "../../assets/hero/meals.jpg";
-import chefsImage from "../../assets/hero/chefs.jpg";
-import reviewsImage from "../../assets/hero/reviews.jpg";
 
 // Cycles through three moments of the HomeFeast story instead of one static
 // thali photo. Each slide doubles as a shortcut - clicking it smooth-scrolls
 // to that part of the homepage (Meals / Chefs / Reviews sections below).
 //
-// Images are bundled locally (src/assets/hero) instead of hotlinked from
-// Unsplash - hotlinked stock photo URLs can 404 or get rate-limited, which
-// is what was showing as a broken image icon here. Swap these files for
-// your own real photos whenever you have them; same three filenames.
+// Each slide has a `fallback` URL too. If the primary image URL ever fails
+// to load (dead link, rate-limited, blocked) the onError handler on the
+// <img> below swaps it to the fallback automatically - so it can never show
+// a broken image icon again, even if a stock-photo link goes down later.
 const SLIDES = [
   {
     id: "meals",
     label: "Top Meals",
     icon: "🍽️",
-    image: mealsImage,
+    image:
+      "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=1000&q=80",
+    fallback: "https://picsum.photos/seed/homefeast-meals/1000/900",
     alt: "A full thali plate with a variety of home-cooked dishes",
   },
   {
     id: "chefs",
     label: "Top Chefs",
     icon: "👨‍🍳",
-    image: chefsImage,
+    image:
+      "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1000&q=80",
+    fallback: "https://picsum.photos/seed/homefeast-chefs/1000/900",
     alt: "A home chef cooking in the kitchen",
   },
   {
     id: "reviews",
     label: "Top Reviews",
     icon: "⭐",
-    image: reviewsImage,
+    image:
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1000&q=80",
+    fallback: "https://picsum.photos/seed/homefeast-reviews/1000/900",
     alt: "Happy customers enjoying a meal together",
   },
 ];
@@ -40,6 +43,7 @@ const SLIDE_DURATION_MS = 4500;
 const HeroImage = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [failedIds, setFailedIds] = useState({});
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -54,6 +58,10 @@ const HeroImage = () => {
 
   const goToSection = (sectionId) => {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleImageError = (slideId) => {
+    setFailedIds((prev) => ({ ...prev, [slideId]: true }));
   };
 
   const activeSlide = SLIDES[activeIndex];
@@ -86,8 +94,9 @@ const HeroImage = () => {
           {SLIDES.map((slide, index) => (
             <img
               key={slide.id}
-              src={slide.image}
+              src={failedIds[slide.id] ? slide.fallback : slide.image}
               alt={slide.alt}
+              onError={() => handleImageError(slide.id)}
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out group-hover:scale-105 ${
                 index === activeIndex ? "opacity-100" : "opacity-0"
               }`}
