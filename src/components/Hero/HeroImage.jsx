@@ -4,46 +4,62 @@ import { useEffect, useRef, useState } from "react";
 // thali photo. Each slide doubles as a shortcut - clicking it smooth-scrolls
 // to that part of the homepage (Meals / Chefs / Reviews sections below).
 //
-// Each slide has a `fallback` URL too. If the primary image URL ever fails
-// to load (dead link, rate-limited, blocked) the onError handler on the
-// <img> below swaps it to the fallback automatically - so it can never show
-// a broken image icon again, even if a stock-photo link goes down later.
+// These are self-contained inline SVG illustrations, not hotlinked photos.
+// Earlier versions used external stock-photo URLs (Unsplash / Picsum) which
+// kept failing to load depending on network/browser conditions. An inline
+// SVG has zero network dependency - it's just code, so it can never show a
+// broken image icon or a blank box, on any connection.
 const SLIDES = [
   {
     id: "meals",
     label: "Top Meals",
     icon: "🍽️",
-    image:
-      "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=1000&q=80",
-    fallback: "https://picsum.photos/seed/homefeast-meals/1000/900",
+    gradient: ["#3f6b45", "#1c1712"],
+    emoji: "🍛",
     alt: "A full thali plate with a variety of home-cooked dishes",
   },
   {
     id: "chefs",
     label: "Top Chefs",
     icon: "👨‍🍳",
-    image:
-      "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1000&q=80",
-    fallback: "https://picsum.photos/seed/homefeast-chefs/1000/900",
+    gradient: ["#e3a72e", "#1c1712"],
+    emoji: "👨‍🍳",
     alt: "A home chef cooking in the kitchen",
   },
   {
     id: "reviews",
     label: "Top Reviews",
     icon: "⭐",
-    image:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1000&q=80",
-    fallback: "https://picsum.photos/seed/homefeast-reviews/1000/900",
+    gradient: ["#c9752f", "#1c1712"],
+    emoji: "⭐",
     alt: "Happy customers enjoying a meal together",
   },
 ];
 
 const SLIDE_DURATION_MS = 4500;
 
+// Renders one slide as a gradient + big emoji SVG - pure code, no <img>, no
+// network request, so it always renders instantly on every device.
+const SlideArt = ({ slide }) => (
+  <svg viewBox="0 0 500 420" className="h-full w-full" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <radialGradient id={`grad-${slide.id}`} cx="50%" cy="35%" r="75%">
+        <stop offset="0%" stopColor={slide.gradient[0]} stopOpacity="0.9" />
+        <stop offset="100%" stopColor={slide.gradient[1]} />
+      </radialGradient>
+    </defs>
+    <rect width="500" height="420" fill={`url(#grad-${slide.id})`} />
+    <circle cx="120" cy="90" r="70" fill="#fbf7f0" opacity="0.06" />
+    <circle cx="410" cy="320" r="110" fill="#fbf7f0" opacity="0.06" />
+    <text x="50%" y="52%" textAnchor="middle" dominantBaseline="middle" fontSize="140">
+      {slide.emoji}
+    </text>
+  </svg>
+);
+
 const HeroImage = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [failedIds, setFailedIds] = useState({});
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -58,10 +74,6 @@ const HeroImage = () => {
 
   const goToSection = (sectionId) => {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const handleImageError = (slideId) => {
-    setFailedIds((prev) => ({ ...prev, [slideId]: true }));
   };
 
   const activeSlide = SLIDES[activeIndex];
@@ -92,16 +104,17 @@ const HeroImage = () => {
       >
         <div className="relative h-[420px] w-full">
           {SLIDES.map((slide, index) => (
-            <img
+            <div
               key={slide.id}
-              src={failedIds[slide.id] ? slide.fallback : slide.image}
-              alt={slide.alt}
-              onError={() => handleImageError(slide.id)}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out group-hover:scale-105 ${
+              role="img"
+              aria-label={slide.alt}
+              className={`absolute inset-0 h-full w-full transition-opacity duration-1000 ease-in-out group-hover:scale-105 ${
                 index === activeIndex ? "opacity-100" : "opacity-0"
               }`}
               style={{ transitionProperty: "opacity, transform" }}
-            />
+            >
+              <SlideArt slide={slide} />
+            </div>
           ))}
 
           <div
