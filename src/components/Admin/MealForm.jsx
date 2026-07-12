@@ -6,6 +6,7 @@ const EMPTY_FORM = {
   name: "",
   category: "",
   price: "",
+  originalPrice: "",
   isVeg: true,
   chefId: "",
   image: "",
@@ -21,6 +22,7 @@ const MealForm = ({ meal, categories, onSubmit, onCancel, submitting }) => {
           name: meal.name,
           category: meal.category,
           price: String(meal.price),
+          originalPrice: meal.originalPrice ? String(meal.originalPrice) : "",
           isVeg: meal.isVeg,
           chefId: meal.chefId ? String(meal.chefId) : "",
           image: meal.image,
@@ -40,6 +42,8 @@ const MealForm = ({ meal, categories, onSubmit, onCancel, submitting }) => {
     if (!form.name.trim()) newErrors.name = "Name is required";
     if (!form.category) newErrors.category = "Pick a category";
     if (!form.price || Number(form.price) <= 0) newErrors.price = "Enter a valid price";
+    if (form.originalPrice && Number(form.originalPrice) <= Number(form.price))
+      newErrors.originalPrice = "Original price must be higher than the price";
     if (!form.image.trim()) newErrors.image = "Image URL is required";
     if (!form.description.trim()) newErrors.description = "Description is required";
     return newErrors;
@@ -55,6 +59,7 @@ const MealForm = ({ meal, categories, onSubmit, onCancel, submitting }) => {
       name: form.name.trim(),
       category: form.category,
       price: Number(form.price),
+      originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
       isVeg: form.isVeg,
       chefId: form.chefId ? Number(form.chefId) : null,
       image: form.image.trim(),
@@ -92,6 +97,15 @@ const MealForm = ({ meal, categories, onSubmit, onCancel, submitting }) => {
         onChange={handleChange}
         error={errors.price}
         required
+      />
+
+      <Input
+        label="Original Price (₹) — optional, for showing a discount"
+        name="originalPrice"
+        type="number"
+        value={form.originalPrice}
+        onChange={handleChange}
+        error={errors.originalPrice}
       />
 
       <div>

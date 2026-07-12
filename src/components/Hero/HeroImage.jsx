@@ -1,31 +1,36 @@
 import { useEffect, useRef, useState } from "react";
+import mealsImage from "../../assets/hero/meals.jpg";
+import chefsImage from "../../assets/hero/chefs.jpg";
+import reviewsImage from "../../assets/hero/reviews.jpg";
 
 // Cycles through three moments of the HomeFeast story instead of one static
 // thali photo. Each slide doubles as a shortcut - clicking it smooth-scrolls
 // to that part of the homepage (Meals / Chefs / Reviews sections below).
+//
+// Images are bundled locally (src/assets/hero) instead of hotlinked from
+// Unsplash - hotlinked stock photo URLs can 404 or get rate-limited, which
+// is what was showing as a broken image icon here. Swap these files for
+// your own real photos whenever you have them; same three filenames.
 const SLIDES = [
   {
     id: "meals",
     label: "Top Meals",
     icon: "🍽️",
-    image:
-      "https://images.unsplash.com/photo-1680993032090-1ef7ea9b51e5?auto=format&fit=crop&w=1000&q=80",
+    image: mealsImage,
     alt: "A full thali plate with a variety of home-cooked dishes",
   },
   {
     id: "chefs",
     label: "Top Chefs",
     icon: "👨‍🍳",
-    image:
-      "https://images.unsplash.com/photo-1528712306091-ed0763094c98?auto=format&fit=crop&w=1000&q=80",
+    image: chefsImage,
     alt: "A home chef cooking in the kitchen",
   },
   {
     id: "reviews",
     label: "Top Reviews",
     icon: "⭐",
-    image:
-      "https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1000&q=80",
+    image: reviewsImage,
     alt: "Happy customers enjoying a meal together",
   },
 ];

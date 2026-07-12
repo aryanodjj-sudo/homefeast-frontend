@@ -3,6 +3,7 @@ import Hero from "../components/Hero/Hero";
 import CategoryStrip from "../components/Categories/CategoryStrip";
 import MealsSection from "../components/Meals/MealsSection";
 import ChefSection from "../components/Chef/ChefSection";
+import TopReviews from "../components/Home/TopReviews";
 import SectionTitle from "../components/Common/SectionTitle";
 import Button from "../components/Common/Button";
 import { ROUTES } from "../utils/constants";
@@ -60,6 +61,8 @@ const Home = () => {
       <MealsSection />
 
       <ChefSection />
+
+      <TopReviews />
 
       <section className="relative overflow-hidden bg-ink py-20 text-center text-rice">
         <div
