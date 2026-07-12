@@ -110,7 +110,7 @@ const MealDetails = () => {
           <p className="mt-5 text-gray-500">{meal.description}</p>
 
           <div className="mt-6">
-            <Price value={meal.price} />
+            <Price value={meal.price} originalValue={meal.originalPrice} />
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">

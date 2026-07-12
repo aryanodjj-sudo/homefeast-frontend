@@ -3,16 +3,21 @@
 // Each meal is prepared by a home chef — chefId links to the chefs in ./chefs.js
 // so the Meal Details page can show "Prepared by <chef>". chefId is optional;
 // meals without one simply skip that section.
+//
+// originalPrice is the "before discount" MRP shown struck-through next to the
+// real price (see components/Common/Price.jsx) - purely a display/marketing
+// figure, not a separate charge.
 const meals = [
   {
     id: 1,
     name: "Paneer Butter Masala",
     category: "Indian",
     price: 250,
+    originalPrice: 349,
     rating: 4.8,
     isVeg: true,
     chefId: 1,
-    image: "https://images.unsplash.com/photo-1601050690597-df0568f70950",
+    image: "https://images.unsplash.com/photo-1606471191009-63994c53433b",
     description:
       "Soft paneer cubes simmered in a rich, creamy tomato-butter gravy, finished with a touch of cream and kasuri methi. A North Indian favourite best enjoyed with butter naan or steamed rice.",
   },
@@ -21,6 +26,7 @@ const meals = [
     name: "Veg Biryani",
     category: "Rice",
     price: 180,
+    originalPrice: 249,
     rating: 4.7,
     isVeg: true,
     chefId: 1,
@@ -33,6 +39,7 @@ const meals = [
     name: "Masala Dosa",
     category: "South Indian",
     price: 120,
+    originalPrice: 169,
     rating: 4.6,
     isVeg: true,
     chefId: 2,
@@ -45,6 +52,7 @@ const meals = [
     name: "Butter Chicken",
     category: "Indian",
     price: 280,
+    originalPrice: 399,
     rating: 4.9,
     isVeg: false,
     chefId: 1,
@@ -57,6 +65,7 @@ const meals = [
     name: "Idli Sambhar",
     category: "South Indian",
     price: 100,
+    originalPrice: 139,
     rating: 4.5,
     isVeg: true,
     chefId: 2,
@@ -69,6 +78,7 @@ const meals = [
     name: "Pav Bhaji",
     category: "Snacks",
     price: 140,
+    originalPrice: 199,
     rating: 4.6,
     isVeg: true,
     image: "https://images.unsplash.com/photo-1753357303396-704b5abe8945",
@@ -80,6 +90,7 @@ const meals = [
     name: "Gulab Jamun",
     category: "Desserts",
     price: 90,
+    originalPrice: 129,
     rating: 4.8,
     isVeg: true,
     image: "https://images.unsplash.com/photo-1593701461250-d7b22dfd3a77",
@@ -91,6 +102,7 @@ const meals = [
     name: "Mango Lassi",
     category: "Beverages",
     price: 80,
+    originalPrice: 109,
     rating: 4.7,
     isVeg: true,
     image: "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4",

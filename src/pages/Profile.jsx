@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import useCart from "../hooks/useCart";
 import useWishlist from "../hooks/useWishlist";
 import useOrders from "../hooks/useOrders";
+import useToast from "../hooks/useToast";
 import { authAPI } from "../utils/api";
 import { validateProfileForm, hasErrors } from "../utils/validators";
+import { resizeImageToBase64 } from "../utils/resizeImage";
 import { formatDate } from "../utils/formatDate";
 import { ROUTES } from "../utils/constants";
 import Input from "../components/Common/Input";
@@ -13,8 +15,6 @@ import Button from "../components/Common/Button";
 import Alert from "../components/Common/Alert";
 import LogoutButton from "../components/Common/LogoutButton";
 
-// Initials avatar - no image upload flow yet, so a simple letter avatar
-// avoids a broken-image placeholder for every user.
 const getInitials = (name = "") =>
   name
     .trim()
@@ -23,11 +23,18 @@ const getInitials = (name = "") =>
     .map((part) => part[0]?.toUpperCase())
     .join("");
 
+const MAX_UPLOAD_SIZE_MB = 8;
+
 const Profile = () => {
   const { user, updateUser } = useAuth();
   const { totalItems } = useCart();
   const { wishlist } = useWishlist();
   const { orders } = useOrders();
+  const { toast } = useToast();
+
+  const fileInputRef = useRef(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
 
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({ name: user?.name || "", phone: user?.phone || "" });
@@ -79,6 +86,42 @@ const Profile = () => {
     }
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+
+    setAvatarError("");
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Please choose an image file.");
+      return;
+    }
+    if (file.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024) {
+      setAvatarError(`Image must be under ${MAX_UPLOAD_SIZE_MB}MB.`);
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const base64Image = await resizeImageToBase64(file, 300, 0.85);
+      const { user: updatedUser } = await authAPI.updateProfile({
+        userId: user.id,
+        avatar: base64Image,
+      });
+      updateUser(updatedUser);
+      toast.success("Profile photo updated ✓");
+    } catch (err) {
+      setAvatarError(err.message || "Could not upload photo. Please try again.");
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -93,14 +136,80 @@ const Profile = () => {
 
       <div className="mt-6 rounded-2xl border p-6 dark:border-gray-700">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 text-xl font-bold text-orange-600 dark:bg-orange-500/10">
-            {getInitials(user.name) || "?"}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={handleAvatarClick}
+              disabled={avatarUploading}
+              className="group relative block h-20 w-20 overflow-hidden rounded-full disabled:cursor-not-allowed"
+              aria-label="Change profile photo"
+            >
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="h-20 w-20 rounded-full border object-cover dark:border-gray-700"
+                />
+              ) : (
+                <span className="flex h-20 w-20 items-center justify-center rounded-full bg-orange-100 text-2xl font-bold text-orange-600 dark:bg-orange-500/10">
+                  {getInitials(user.name) || "?"}
+                </span>
+              )}
+
+              {/* Camera overlay - always faintly visible, fully visible on hover */}
+              <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                  />
+                  <circle cx="12" cy="13" r="3.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+
+              {avatarUploading && (
+                <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                </span>
+              )}
+            </button>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="hidden"
+            />
           </div>
+
           <div>
             <p className="text-lg font-semibold">{user.name}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+            <button
+              type="button"
+              onClick={handleAvatarClick}
+              disabled={avatarUploading}
+              className="mt-1 text-xs font-medium text-orange-500 hover:underline disabled:opacity-60"
+            >
+              {avatarUploading ? "Uploading..." : "Change photo"}
+            </button>
           </div>
         </div>
+
+        {avatarError && (
+          <div className="mt-3">
+            <Alert type="error" message={avatarError} />
+          </div>
+        )}
 
         {isEditing ? (
           <form onSubmit={handleSave} className="mt-6 space-y-4">

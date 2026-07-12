@@ -4,7 +4,7 @@ import SectionTitle from "../Common/SectionTitle";
 
 const ChefSection = () => {
   return (
-    <section className="bg-rice py-20 dark:bg-gray-950">
+    <section id="chefs" className="scroll-mt-24 bg-rice py-20 dark:bg-gray-950">
       <div className="container mx-auto px-4">
         <SectionTitle
           eyebrow="Meet the cooks"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import useOrders from "../hooks/useOrders";
 import Loader from "../components/Common/Loader";
@@ -9,7 +9,7 @@ import OrderTracker from "../components/Orders/OrderTracker";
 import PriceBreakdown from "../components/Checkout/PriceBreakdown";
 import { formatPrice } from "../utils/formatPrice";
 import { formatDate } from "../utils/formatDate";
-import { canCancelOrder } from "../utils/orderHelpers";
+import { ordersAPI } from "../utils/api";
 import { PAYMENT_METHOD_LABELS, ROUTES, ORDER_STATUS } from "../utils/constants";
 
 // Single order's full detail view: status tracker, line items, delivery
@@ -19,20 +19,57 @@ import { PAYMENT_METHOD_LABELS, ROUTES, ORDER_STATUS } from "../utils/constants"
 const OrderDetails = () => {
   const { id } = useParams();
   const { getOrderById, cancelOrder, loading } = useOrders();
-  const order = getOrderById(id);
+  const contextOrder = getOrderById(id);
+
+  // Not found in the logged-in user's own order list? That's expected for
+  // admins viewing a customer's order (their own order list is unrelated) -
+  // fall back to fetching it directly. The backend already allows admins to
+  // view any order; only customers are restricted to their own.
+  const [fetchedOrder, setFetchedOrder] = useState(null);
+  const [fetchingOrder, setFetchingOrder] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
+
+  useEffect(() => {
+    if (contextOrder || loading) return;
+
+    let cancelled = false;
+    setFetchingOrder(true);
+    setFetchError(null);
+
+    ordersAPI
+      .getOrderById(id)
+      .then((data) => {
+        if (!cancelled) setFetchedOrder(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setFetchError(err.message || "Order not found");
+      })
+      .finally(() => {
+        if (!cancelled) setFetchingOrder(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, contextOrder, loading]);
+
+  const order = contextOrder || fetchedOrder;
 
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState(null);
 
-  if (loading && !order) {
+  if ((loading || fetchingOrder) && !order) {
     return <Loader />;
   }
 
   if (!order) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold">Order not found</h1>
+        <h1 className="text-2xl font-bold">
+          {fetchError || "Order not found"}
+        </h1>
         <Link to={ROUTES.ORDERS} className="mt-4 inline-block text-orange-500 hover:underline">
           Back to Orders
         </Link>

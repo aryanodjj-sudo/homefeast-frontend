@@ -16,7 +16,7 @@ const MealsSection = () => {
     .slice(0, FEATURED_COUNT);
 
   return (
-    <section className="container mx-auto px-4 py-20">
+    <section id="meals" className="scroll-mt-24 container mx-auto px-4 py-20">
       <SectionTitle
         eyebrow="Today's picks"
         title="Our most loved meals"

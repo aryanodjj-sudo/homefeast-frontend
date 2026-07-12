@@ -69,7 +69,7 @@ const MealCard = ({ meal }) => {
         </p>
 
         <div className="mt-5 flex items-center justify-between">
-          <Price value={meal.price} />
+          <Price value={meal.price} originalValue={meal.originalPrice} />
           <Rating value={meal.rating} />
         </div>
 

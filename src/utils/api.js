@@ -57,6 +57,7 @@ const toSafeUser = (user) => ({
   name: user.name,
   email: user.email,
   phone: user.phone,
+  avatar: user.avatar || "",
   role: user.role,
   createdAt: user.createdAt,
 });
@@ -177,20 +178,22 @@ export const authAPI = {
     return { success: true };
   },
 
-  updateProfile: async ({ userId, name, phone }) => {
+  updateProfile: async ({ userId, name, phone, avatar }) => {
     if (!APP_CONFIG.USE_MOCK_API) {
       return request("/auth/profile", {
         method: "PATCH",
-        body: JSON.stringify({ name, phone }),
+        body: JSON.stringify({ name, phone, avatar }),
       });
     }
 
     await mockDelay();
 
-    const updatedUser = updateStoredUser(userId, {
-      name: name.trim(),
-      phone: phone?.trim() || "",
-    });
+    const updates = {};
+    if (name !== undefined) updates.name = name.trim();
+    if (phone !== undefined) updates.phone = phone?.trim() || "";
+    if (avatar !== undefined) updates.avatar = avatar;
+
+    const updatedUser = updateStoredUser(userId, updates);
 
     if (!updatedUser) {
       throw new Error("User not found");
