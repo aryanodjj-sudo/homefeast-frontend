@@ -1,58 +1,66 @@
 import { useEffect, useRef, useState } from "react";
 
-// Cycles through three moments of the HomeFeast story instead of one static
-// thali photo. Each slide doubles as a shortcut - clicking it smooth-scrolls
-// to that part of the homepage (Meals / Chefs / Reviews sections below).
-//
-// These are self-contained inline SVG illustrations, not hotlinked photos.
-// Earlier versions used external stock-photo URLs (Unsplash / Picsum) which
-// kept failing to load depending on network/browser conditions. An inline
-// SVG has zero network dependency - it's just code, so it can never show a
-// broken image icon or a blank box, on any connection.
+// Cycles through four moments of the HomeFeast story - a general welcome
+// shot first, then Meals / Chefs / Reviews. Each of the last three doubles
+// as a shortcut: clicking it smooth-scrolls to that part of the homepage.
+// Every slide uses a real photo (stylish ceramic/ restaurant-style plating,
+// never steel thalis) with an onError fallback to a gradient+icon card, so
+// a slow or blocked image never shows a broken icon or blank box.
 const SLIDES = [
+  {
+    id: null, // first slide is just the brand/welcome shot - no scroll target
+    label: "HomeFeast",
+    icon: "🏠",
+    image:
+      "https://images.unsplash.com/photo-1606843046080-45bf7a23c39f?auto=format&fit=crop&w=1000&q=80",
+    alt: "A beautifully plated home-cooked Indian meal on a white ceramic plate",
+    gradient: ["#c9752f", "#1c1712"],
+  },
   {
     id: "meals",
     label: "Top Meals",
     icon: "🍽️",
+    image:
+      "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=1000&q=80",
+    alt: "A restaurant-style dish beautifully plated on a white ceramic plate",
     gradient: ["#3f6b45", "#1c1712"],
-    emoji: "🍛",
-    alt: "A full thali plate with a variety of home-cooked dishes",
   },
   {
     id: "chefs",
     label: "Top Chefs",
     icon: "👨‍🍳",
-    gradient: ["#e3a72e", "#1c1712"],
-    emoji: "👨‍🍳",
+    image:
+      "https://images.unsplash.com/photo-1528712306091-ed0763094c98?auto=format&fit=crop&w=1000&q=80",
     alt: "A home chef cooking in the kitchen",
+    gradient: ["#e3a72e", "#1c1712"],
   },
   {
     id: "reviews",
     label: "Top Reviews",
     icon: "⭐",
-    gradient: ["#c9752f", "#1c1712"],
-    emoji: "⭐",
+    image:
+      "https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1000&q=80",
     alt: "Happy customers enjoying a meal together",
+    gradient: ["#c9752f", "#1c1712"],
   },
 ];
 
 const SLIDE_DURATION_MS = 4500;
 
-// Renders one slide as a gradient + big emoji SVG - pure code, no <img>, no
-// network request, so it always renders instantly on every device.
-const SlideArt = ({ slide }) => (
+// Shown in place of a slide's photo only if that photo URL fails to load -
+// pure code (gradient + emoji), zero network dependency, so the hero can
+// never show a broken-image icon or a blank box.
+const SlideFallback = ({ slide }) => (
   <svg viewBox="0 0 500 420" className="h-full w-full" preserveAspectRatio="xMidYMid slice">
     <defs>
-      <radialGradient id={`grad-${slide.id}`} cx="50%" cy="35%" r="75%">
+      <radialGradient id={`grad-${slide.label}`} cx="50%" cy="35%" r="75%">
         <stop offset="0%" stopColor={slide.gradient[0]} stopOpacity="0.9" />
         <stop offset="100%" stopColor={slide.gradient[1]} />
       </radialGradient>
     </defs>
-    <rect width="500" height="420" fill={`url(#grad-${slide.id})`} />
-    <circle cx="120" cy="90" r="70" fill="#fbf7f0" opacity="0.06" />
-    <circle cx="410" cy="320" r="110" fill="#fbf7f0" opacity="0.06" />
-    <text x="50%" y="52%" textAnchor="middle" dominantBaseline="middle" fontSize="140">
-      {slide.emoji}
+    <rect width="500" height="420" fill={`url(#grad-${slide.label})`} />
+    <text x="50%" y="52%" textAnchor="middle" dominantBaseline="middle" fontSize="120">
+      {slide.icon}
     </text>
   </svg>
 );
@@ -60,6 +68,7 @@ const SlideArt = ({ slide }) => (
 const HeroImage = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [failedSlides, setFailedSlides] = useState({});
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -73,6 +82,7 @@ const HeroImage = () => {
   }, [paused]);
 
   const goToSection = (sectionId) => {
+    if (!sectionId) return;
     document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -100,20 +110,29 @@ const HeroImage = () => {
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         className="group relative block w-full overflow-hidden rounded-[2.5rem] shadow-2xl"
-        aria-label={`Jump to the ${activeSlide.label} section`}
+        aria-label={activeSlide.id ? `Jump to the ${activeSlide.label} section` : activeSlide.label}
       >
         <div className="relative h-[420px] w-full">
           {SLIDES.map((slide, index) => (
             <div
-              key={slide.id}
-              role="img"
-              aria-label={slide.alt}
-              className={`absolute inset-0 h-full w-full transition-opacity duration-1000 ease-in-out group-hover:scale-105 ${
+              key={slide.label}
+              className={`absolute inset-0 h-full w-full transition-opacity duration-1000 ease-in-out ${
                 index === activeIndex ? "opacity-100" : "opacity-0"
               }`}
-              style={{ transitionProperty: "opacity, transform" }}
             >
-              <SlideArt slide={slide} />
+              {failedSlides[slide.label] ? (
+                <SlideFallback slide={slide} />
+              ) : (
+                <img
+                  src={slide.image}
+                  alt={slide.alt}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  onError={() =>
+                    setFailedSlides((prev) => ({ ...prev, [slide.label]: true }))
+                  }
+                  className="h-full w-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-105"
+                />
+              )}
             </div>
           ))}
 
@@ -125,13 +144,13 @@ const HeroImage = () => {
           <div className="absolute bottom-6 left-6 flex items-center gap-2 rounded-full bg-rice/90 px-4 py-2 text-sm font-semibold text-ink shadow-lg backdrop-blur transition group-hover:bg-rice">
             <span>{activeSlide.icon}</span>
             <span>{activeSlide.label}</span>
-            <span className="text-turmeric">→</span>
+            {activeSlide.id && <span className="text-turmeric">→</span>}
           </div>
 
           <div className="absolute bottom-6 right-6 flex gap-1.5">
             {SLIDES.map((slide, index) => (
               <span
-                key={slide.id}
+                key={slide.label}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   index === activeIndex ? "w-6 bg-rice" : "w-1.5 bg-rice/40"
                 }`}
