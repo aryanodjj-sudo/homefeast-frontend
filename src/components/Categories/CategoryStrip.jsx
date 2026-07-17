@@ -6,7 +6,7 @@ const CATEGORIES = [
     name: "Indian",
     tagline: "Rich, slow-cooked gravies",
     image:
-      "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=400&q=80",
+      "https://media.istockphoto.com/id/2160428229/photo/vertical-photo-of-paneer-butter-masala.webp?b=1&s=612x612&w=0&k=20&c=Wgqo3OvXpOGk9PjsykzB83S3n7zqBcCn0In3ElVkUq4=",
   },
   {
     name: "Rice",

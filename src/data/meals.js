@@ -17,7 +17,7 @@ const meals = [
     rating: 4.8,
     isVeg: true,
     chefId: 1,
-    image: "https://images.unsplash.com/photo-1567529854338-fc097b962123",
+    image: "https://media.istockphoto.com/id/2160428229/photo/vertical-photo-of-paneer-butter-masala.webp?b=1&s=612x612&w=0&k=20&c=Wgqo3OvXpOGk9PjsykzB83S3n7zqBcCn0In3ElVkUq4=",
     description:
       "Soft paneer cubes simmered in a rich, creamy tomato-butter gravy, finished with a touch of cream and kasuri methi. A North Indian favourite best enjoyed with butter naan or steamed rice.",
   },

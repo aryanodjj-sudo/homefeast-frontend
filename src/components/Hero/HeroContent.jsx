@@ -7,7 +7,7 @@ import { ROUTES } from "../../utils/constants";
 
 const STATS = [
   { value: "500+", label: "Happy customers" },
-  { value: "100+", label: "Home chefs" },
+  { value: "10+", label: "Home chefs" },
   { value: "1000+", label: "Meals delivered" },
 ];
 
