@@ -1,3 +1,4 @@
+import SubscriptionFreeBanner from "../components/Checkout/SubscriptionFreeBanner";
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import useCart from "../hooks/useCart";
@@ -128,6 +129,7 @@ const Checkout = () => {
 
       <form onSubmit={handlePlaceOrder} className="mt-6 grid gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
+          <SubscriptionFreeBanner />
           <AddressForm address={address} errors={addressErrors} onChange={setAddress} />
 
           <PaymentMethodSelector

@@ -107,6 +107,14 @@ const UserMenu = () => {
             My Orders
           </Link>
 
+          <Link
+            to={ROUTES.MY_SUBSCRIPTIONS}
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+          >
+            My Subscriptions
+          </Link>
+
           {user.role === USER_ROLES.ADMIN && (
             <Link
               to={ROUTES.ADMIN}
