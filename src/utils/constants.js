@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
   CATEGORIES: "homefeast-categories",
   REVIEWS: "homefeast-reviews",
   MESSAGES: "homefeast-messages",
+  SUBSCRIPTIONS: "homefeast-subscriptions",
 };
 
 export const USER_ROLES = {
@@ -54,6 +55,9 @@ export const ROUTES = {
   ADMIN_CUSTOMERS: "/admin/customers",
   ADMIN_REVIEWS: "/admin/reviews",
   ADMIN_MESSAGES: "/admin/messages",
+  SUBSCRIBE: "/subscribe",
+  MY_SUBSCRIPTIONS: "/my-subscriptions",
+  ADMIN_SUBSCRIPTIONS: "/admin/subscriptions",
 };
 
 export const VALIDATION_MESSAGES = {
@@ -142,4 +146,44 @@ export const REVIEW_STATUS = {
 export const MESSAGE_STATUS = {
   NEW: "New",
   RESOLVED: "Resolved",
+};
+
+// ---------------------------------------------------------------------------
+// Subscriptions
+// ---------------------------------------------------------------------------
+export const SUBSCRIPTION_PLANS = {
+  monthly: {
+    id: "monthly",
+    label: "Monthly Plan",
+    durationDays: 30,
+    price: 2999,
+    tagline: "Billed every month",
+  },
+  yearly: {
+    id: "yearly",
+    label: "Yearly Plan",
+    durationDays: 365,
+    price: 29999,
+    tagline: "Billed once a year",
+    badge: "Save ~17%",
+  },
+};
+
+export const MEAL_PREFERENCES = {
+  VEG: "veg",
+  NON_VEG: "non-veg",
+  BOTH: "both",
+};
+
+export const MEAL_PREFERENCE_LABELS = {
+  veg: "Vegetarian",
+  "non-veg": "Non-Vegetarian",
+  both: "Both (Chef's choice)",
+};
+
+export const SUBSCRIPTION_STATUS = {
+  ACTIVE: "Active",
+  PAUSED: "Paused",
+  CANCELLED: "Cancelled",
+  EXPIRED: "Expired",
 };

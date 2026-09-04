@@ -126,3 +126,11 @@ export const saveStoredReviews = (reviews) => setStorageItem(STORAGE_KEYS.REVIEW
 export const getStoredMessages = () => getStorageItem(STORAGE_KEYS.MESSAGES, []);
 
 export const saveStoredMessages = (messages) => setStorageItem(STORAGE_KEYS.MESSAGES, messages);
+
+// ---------------------------------------------------------------------------
+// Subscriptions "table" - mock-mode storage for recurring meal plans.
+// ---------------------------------------------------------------------------
+export const getStoredSubscriptions = () => getStorageItem(STORAGE_KEYS.SUBSCRIPTIONS, []);
+
+export const saveStoredSubscriptions = (subscriptions) =>
+  setStorageItem(STORAGE_KEYS.SUBSCRIPTIONS, subscriptions);

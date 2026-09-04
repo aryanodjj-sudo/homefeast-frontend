@@ -30,6 +30,9 @@ const NavLinks = ({ mobile = false }) => {
       <Link to="/wishlist" className="text-gray-700 transition hover:text-orange-500 dark:text-gray-200">
         Wishlist
       </Link>
+      <Link to="/subscribe" className="text-gray-700 transition hover:text-orange-500 dark:text-gray-200">
+        Subscribe
+      </Link>
 
       <Link
         to="/cart"

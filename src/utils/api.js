@@ -1,5 +1,5 @@
 import { APP_CONFIG } from "./appConfig";
-import { ORDER_STATUS, REVIEW_STATUS, MESSAGE_STATUS, STORAGE_KEYS, USER_ROLES, VALIDATION_MESSAGES } from "./constants";
+import { ORDER_STATUS, REVIEW_STATUS, MESSAGE_STATUS, SUBSCRIPTION_STATUS, SUBSCRIPTION_PLANS, STORAGE_KEYS, USER_ROLES, VALIDATION_MESSAGES } from "./constants";
 import { getStorageItem, setStorageItem } from "./storage";
 import {
   addStoredUser,
@@ -14,6 +14,8 @@ import {
   saveStoredReviews,
   getStoredMessages,
   saveStoredMessages,
+  getStoredSubscriptions,
+  saveStoredSubscriptions,
 } from "./storageManager";
 import { canCancelOrder, generateOrderId } from "./orderHelpers";
 
@@ -721,6 +723,105 @@ export const adminAPI = {
       },
       orders,
     };
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Subscriptions API - a recurring "meal every day until the plan expires"
+// order. Pricing is never accepted from the caller - both branches look it
+// up from SUBSCRIPTION_PLANS/the backend's own config, so a tampered client
+// request can never set its own price.
+// ---------------------------------------------------------------------------
+export const subscriptionAPI = {
+  subscribe: async ({ userId, plan, mealPreference, address, paymentMethod }) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request("/subscriptions", {
+        method: "POST",
+        body: JSON.stringify({ plan, mealPreference, address, paymentMethod }),
+      });
+    }
+
+    await mockDelay();
+
+    const planConfig = SUBSCRIPTION_PLANS[plan];
+    if (!planConfig) throw new Error("Invalid subscription plan");
+
+    const subscriptions = getStoredSubscriptions();
+    const existingActive = subscriptions.find(
+      (s) => s.userId === userId && s.status === SUBSCRIPTION_STATUS.ACTIVE
+    );
+    if (existingActive) {
+      throw new Error("You already have an active subscription");
+    }
+
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + planConfig.durationDays);
+
+    const newSubscription = {
+      id: crypto.randomUUID(),
+      userId,
+      plan,
+      mealPreference: mealPreference || "veg",
+      address,
+      paymentMethod,
+      price: planConfig.price,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      status: SUBSCRIPTION_STATUS.ACTIVE,
+      createdAt: new Date().toISOString(),
+    };
+
+    saveStoredSubscriptions([...subscriptions, newSubscription]);
+    return newSubscription;
+  },
+
+  getMySubscriptions: async (userId) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request("/subscriptions/my");
+    }
+    await mockDelay();
+    return getStoredSubscriptions()
+      .filter((s) => s.userId === userId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  },
+
+  cancelSubscription: async (id) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request(`/subscriptions/${id}/cancel`, { method: "PATCH" });
+    }
+    await mockDelay();
+    const subscriptions = getStoredSubscriptions();
+    const updated = subscriptions.map((s) =>
+      s.id === id ? { ...s, status: SUBSCRIPTION_STATUS.CANCELLED } : s
+    );
+    saveStoredSubscriptions(updated);
+    return updated.find((s) => s.id === id);
+  },
+
+  // --- Admin-only ---------------------------------------------------------
+  getAllSubscriptions: async () => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request("/admin/subscriptions");
+    }
+    await mockDelay();
+    return getStoredSubscriptions().sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+  },
+
+  updateSubscriptionStatus: async (id, status) => {
+    if (!APP_CONFIG.USE_MOCK_API) {
+      return request(`/admin/subscriptions/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+    }
+    await mockDelay();
+    const subscriptions = getStoredSubscriptions();
+    const updated = subscriptions.map((s) => (s.id === id ? { ...s, status } : s));
+    saveStoredSubscriptions(updated);
+    return updated.find((s) => s.id === id);
   },
 };
 

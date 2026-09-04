@@ -20,6 +20,8 @@ import Orders from "../pages/Orders";
 import OrderDetails from "../pages/OrderDetails";
 import OrderSuccess from "../pages/OrderSuccess";
 import MealDetails from "../pages/MealDetails";
+import Subscribe from "../pages/Subscribe";
+import MySubscriptions from "../pages/MySubscriptions";
 import NotFound from "../pages/NotFound";
 
 import AdminDashboard from "../pages/admin/Dashboard";
@@ -29,6 +31,7 @@ import ManageOrders from "../pages/admin/ManageOrders";
 import ManageCustomers from "../pages/admin/ManageCustomers";
 import ManageReviews from "../pages/admin/ManageReviews";
 import ManageMessages from "../pages/admin/ManageMessages";
+import ManageSubscriptions from "../pages/admin/ManageSubscriptions";
 
 const router = createBrowserRouter([
   {
@@ -44,9 +47,6 @@ const router = createBrowserRouter([
       { path: "/register", element: <Register /> },
 
       {
-        // Private routes: only reachable when authenticated.
-        // ProtectedRoute redirects to /login (and remembers the intended
-        // destination in location.state.from) when there is no logged-in user.
         element: <ProtectedRoute />,
         children: [
           { path: "/cart", element: <Cart /> },
@@ -56,6 +56,8 @@ const router = createBrowserRouter([
           { path: "/orders", element: <Orders /> },
           { path: "/orders/:id", element: <OrderDetails /> },
           { path: "/order-success/:id", element: <OrderSuccess /> },
+          { path: "/subscribe", element: <Subscribe /> },
+          { path: "/my-subscriptions", element: <MySubscriptions /> },
         ],
       },
 
@@ -65,8 +67,6 @@ const router = createBrowserRouter([
   },
 
   {
-    // Admin panel: its own shell (AdminLayout), gated by role - not just
-    // login. See AdminRoute for the customer-vs-admin redirect logic.
     path: "/admin",
     element: <AdminRoute />,
     children: [
@@ -80,6 +80,7 @@ const router = createBrowserRouter([
           { path: "customers", element: <ManageCustomers /> },
           { path: "reviews", element: <ManageReviews /> },
           { path: "messages", element: <ManageMessages /> },
+          { path: "subscriptions", element: <ManageSubscriptions /> },
         ],
       },
     ],
