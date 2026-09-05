@@ -17,7 +17,7 @@ const meals = [
     rating: 4.8,
     isVeg: true,
     chefId: 1,
-    image: "https://media.istockphoto.com/id/2160428229/photo/vertical-photo-of-paneer-butter-masala.webp?b=1&s=612x612&w=0&k=20&c=Wgqo3OvXpOGk9PjsykzB83S3n7zqBcCn0In3ElVkUq4=",
+    image: "https://www.ruchiskitchen.com/wp-content/uploads/2020/12/Paneer-butter-masala-recipe-3-500x375.jpg",
     description:
       "Soft paneer cubes simmered in a rich, creamy tomato-butter gravy, finished with a touch of cream and kasuri methi. A North Indian favourite best enjoyed with butter naan or steamed rice.",
   },
@@ -56,7 +56,7 @@ const meals = [
     rating: 4.9,
     isVeg: false,
     chefId: 1,
-    image: "https://www.ruchiskitchen.com/wp-content/uploads/2020/12/Paneer-butter-masala-recipe-3-500x375.jpg",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvmEnRF4HkesEXJXnZThxJ4MkVfN6j-taF5BYwqCcC2Q&s=10",
     description:
       "Tender tandoor-grilled chicken simmered in a velvety, mildly spiced tomato-butter sauce. A restaurant classic, made the homemade way.",
   },
